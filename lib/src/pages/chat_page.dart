@@ -53,7 +53,7 @@ class _ChatPageState extends State<ChatPage> {
       final response = await _chat.sendMessage(Content.text(userMessage));
       final aiMessage = response.text ?? "I'm here to help!";
       setState(() {
-        _messages.add({"sender": "AI", "text": aiMessage});
+        _messages.add({"sender": "AI Helper", "text": aiMessage});
         _isWaitingForResponse = false;
 
         if (_requiresProfessionalAttention(userMessage)) {
@@ -269,7 +269,7 @@ class _ChatPageState extends State<ChatPage> {
     margin: const EdgeInsets.symmetric(horizontal: 8.0),
     child: CircleAvatar(
       radius: 15,
-      backgroundImage: AssetImage(isUser ? 'assets/user_avatar.png' : 'assets/ai_avatar.png'),
+      backgroundImage: AssetImage(isUser ? 'assets/images/user_avatar.jpg' : 'assets/images/ai_avatar.jpeg'),
     ),
   );
 }
