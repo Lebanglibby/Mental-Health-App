@@ -15,6 +15,9 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   firebase_core: ^3.3.0
+  google_generative_ai: ^0.4.4
+  flutter_markdown: ^0.7.3+1
+  url_launcher: ^6.2.0
 
 dev_dependencies:
   flutter_test:

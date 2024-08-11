@@ -5,12 +5,15 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'pages/landing_page.dart';
 import 'pages/dashboard.dart';
+import 'pages/profile_page.dart';
+import 'pages/emergency_support_page.dart';
 import 'pages/sample_item_details_view.dart';
 import 'pages/sample_item_list_view.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
 import 'pages/forgot_password_page.dart';
 import 'pages/professional_signup_page.dart';
+import 'pages/chat_page.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 
@@ -65,6 +68,12 @@ class MyApp extends StatelessWidget {
                     return const ProfessionalSignUpPage();
                   case Dashboard.routeName:
                     return const Dashboard();
+                  case ChatPage.routeName:  
+                    return const ChatPage();
+                  case ProfilePage.routeName:
+                   return ProfilePage();
+                  case EmergencySupportPage.routeName:
+                   return EmergencySupportPage();
                   default:
                     return const SampleItemListView();
                 }
