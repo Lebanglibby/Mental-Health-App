@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mentalhealthcare/src/pages/resource_library.dart';
 
+import 'pages/appointment.dart';
 import 'pages/landing_page.dart';
 import 'pages/dashboard.dart';
 import 'pages/profile_page.dart';
@@ -41,12 +43,14 @@ class MyApp extends StatelessWidget {
           supportedLocales: const [
             Locale('en', ''), // English, no country code
           ],
+
           onGenerateTitle: (BuildContext context) =>
               AppLocalizations.of(context)!.appTitle,
           theme: ThemeData(),
           darkTheme: ThemeData.dark(),
           themeMode: settingsController.themeMode,
           home: const LandingPage(),
+
           onGenerateRoute: (RouteSettings routeSettings) {
             return MaterialPageRoute<void>(
               settings: routeSettings,
@@ -73,9 +77,13 @@ class MyApp extends StatelessWidget {
                   case ProfilePage.routeName:
                    return ProfilePage();
                   case EmergencySupportPage.routeName:
-                   return EmergencySupportPage();
+                   return const EmergencySupportPage();
+                  case ResourceLibraryPage.routeName:
+                   return ResourceLibraryPage();
+                  case AppointmentPage.routeName:
+                   return const AppointmentPage(); 
                   default:
-                    return const SampleItemListView();
+                   return const SampleItemListView();
                 }
               },
             );

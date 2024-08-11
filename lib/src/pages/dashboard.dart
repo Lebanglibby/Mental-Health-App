@@ -174,9 +174,6 @@ class _DashboardState extends State<Dashboard> {
                 ],
               ),
             ),
-            const Center(
-              child: Text('Main Content Area'),
-            ),
           ],
         ),
       ),
@@ -219,52 +216,53 @@ class _DashboardState extends State<Dashboard> {
         ),
       ),
       endDrawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Color(0xFF1b263b),
-              ),
-              child: Text(
-                'Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.track_changes),
-              title: const Text('Mood and Activity Tracking'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.library_books),
-              title: const Text('Resource Library'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.insights),
-              title: const Text('Insights'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.group),
-              title: const Text('Community and Support Groups'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
+  child: ListView(
+    padding: EdgeInsets.zero,
+    children: <Widget>[
+      const DrawerHeader(
+        decoration: BoxDecoration(
+          color: Color(0xFF1b263b),
+        ),
+        child: Text(
+          'Menu',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+          ),
         ),
       ),
+      ListTile(
+        leading: const Icon(Icons.track_changes),
+        title: const Text('Appointments'),
+        onTap: () {
+          Navigator.pushNamed(context, '/Appointments');
+        },
+      ),
+      ListTile(
+        leading: const Icon(Icons.library_books),
+        title: const Text('Resource Library'),
+        onTap: () {
+          Navigator.pushNamed(context, '/resource_library');
+        },
+      ),
+      ListTile(
+        leading: const Icon(Icons.insights),
+        title: const Text('Insights'),
+        onTap: () {
+          Navigator.pushNamed(context, '/insights');
+        },
+      ),
+      ListTile(
+        leading: const Icon(Icons.group),
+        title: const Text('Community and Support Groups'),
+        onTap: () {
+          Navigator.pushNamed(context, '/community_support_groups');
+        },
+      ),
+    ],
+  ),
+),
+
     );
   }
 }

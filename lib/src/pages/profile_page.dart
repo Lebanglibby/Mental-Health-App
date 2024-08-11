@@ -55,41 +55,57 @@ class ProfilePage extends StatelessWidget {
           ],
         ),
       ),
-      endDrawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: const <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Color(0xFF1b263b),
-              ),
-              child: Text(
-                'Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.track_changes),
-              title: Text('Mood and Activity Tracking'),
-            ),
-            ListTile(
-              leading: Icon(Icons.library_books),
-              title: Text('Resource Library'),
-            ),
-            ListTile(
-              leading: Icon(Icons.insights),
-              title: Text('Insights'),
-            ),
-            ListTile(
-              leading: Icon(Icons.group),
-              title: Text('Community and Support Groups'),
-            ),
-          ],
+          endDrawer: Drawer(
+  child: ListView(
+    padding: EdgeInsets.zero,
+    children: <Widget>[
+      const DrawerHeader(
+        decoration: BoxDecoration(
+          color: Color(0xFF1b263b),
+        ),
+        child: Text(
+          'Menu',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+          ),
         ),
       ),
+
+        ListTile(
+        leading: const Icon(Icons.track_changes),
+        title: const Text('Appointments'),
+        onTap: () {
+          Navigator.pushNamed(context, '/Appointments');
+        },
+      ),
+
+      ListTile(
+        leading: const Icon(Icons.library_books),
+        title: const Text('Resource Library'),
+        onTap: () {
+          Navigator.pushNamed(context, '/resource_library');
+        },
+      ),
+
+      ListTile(
+        leading: const Icon(Icons.insights),
+        title: const Text('Insights'),
+        onTap: () {
+          Navigator.pushNamed(context, '/insights');
+        },
+      ),
+      
+      ListTile(
+        leading: const Icon(Icons.group),
+        title: const Text('Community and Support Groups'),
+        onTap: () {
+          Navigator.pushNamed(context, '/community_support_groups');
+        },
+      ),
+    ],
+  ),
+),
     );
   }
 }
