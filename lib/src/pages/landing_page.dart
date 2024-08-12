@@ -29,7 +29,7 @@ class _LandingPageState extends State<LandingPage> {
         fit: StackFit.expand, // Ensures the background image fills the screen
         children: [
           Image.asset(
-            'assets/background_image.jpg', // Replace with your image path
+            'assets/images/background_image.jpg', // Replace with your image path
             fit: BoxFit.cover, // Makes the image cover the entire screen
           ),
           const Center(

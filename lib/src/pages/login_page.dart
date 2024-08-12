@@ -1,9 +1,7 @@
-// lib/src/pages/login_page.dart
 import 'package:flutter/material.dart';
 import 'package:mentalhealthcare/src/services/auth_service.dart';
 import 'dashboard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 
 class LoginPage extends StatefulWidget {
   static const routeName = '/login';
@@ -11,7 +9,6 @@ class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _LoginPageState createState() => _LoginPageState();
 }
 
@@ -52,6 +49,15 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 50), // Space at the top
+
+                // Logo Image
+                Image.asset(
+                  'assets/images/mylogo', // Replace with your logo path
+                  height: 100, // Adjust height as needed
+                ),
+
+                const SizedBox(height: 50), // Space below the logo
+
                 TextFormField(
                   decoration: const InputDecoration(
                     labelText: 'Email',
@@ -103,22 +109,36 @@ class _LoginPageState extends State<LoginPage> {
                     _errorMessage!,
                     style: const TextStyle(color: Colors.red),
                   ),
+                const SizedBox(height: 16),
+
+                // Login Button
                 ElevatedButton(
                   onPressed: _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF370617),
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15), // Increase button size
+                    textStyle: const TextStyle(fontSize: 18), // Increase text size
                   ),
                   child: const Text('Login'),
                 ),
+                const SizedBox(height: 16),
+
+                // Sign Up Button
                 TextButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/signup');
                   },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15), // Increase button size
+                    textStyle: const TextStyle(fontSize: 18), // Increase text size
+                  ),
                   child: const Text(
                     'Sign Up',
-                    style: TextStyle(color: Color(0xFF5c677d)),
+                    style: TextStyle(color: Color.fromARGB(255, 37, 104, 237)),
                   ),
                 ),
+
+                // Forgot Password Button
                 TextButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/forgot_password');
@@ -137,6 +157,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
 
 
 
