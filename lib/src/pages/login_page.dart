@@ -52,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 // Logo Image
                 Image.asset(
-                  'assets/images/mylogo', // Replace with your logo path
+                  'assets/images/mylogo.jpg', // Replace with your logo path
                   height: 100, // Adjust height as needed
                 ),
 
