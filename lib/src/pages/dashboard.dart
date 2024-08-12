@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
   static const routeName = '/dashboard';
 
   @override
-  // ignore: library_private_types_in_public_api
   _DashboardState createState() => _DashboardState();
 }
 
@@ -18,6 +17,7 @@ class _DashboardState extends State<Dashboard> {
   bool _showMoodOptions = true;
   late GenerativeModel _model;
   late ChatSession _chat;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   final List<String> _moods = [
     'Happy',
@@ -56,11 +56,19 @@ class _DashboardState extends State<Dashboard> {
     });
   }
 
+  Future<void> _saveMoodToFirestore() async {
+    await _firestore.collection('moods').add({
+      'mood': _selectedMood,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
   void _selectMood(int index) {
     setState(() {
       _selectedMood = _moods[index];
       _showMoodOptions = false;
       _generateMotivationalQuote();
+      _saveMoodToFirestore();
     });
   }
 
@@ -104,39 +112,57 @@ class _DashboardState extends State<Dashboard> {
                   ),
                   const SizedBox(height: 16),
                   if (_showMoodOptions)
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: List.generate(_moods.length, (index) {
+                    SizedBox(
+                      height: 140,  // Adjusted height
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _moods.length,
+                        itemBuilder: (context, index) {
                           return GestureDetector(
                             onTap: () => _selectMood(index),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              width: 100, // Set width for each mood container
                               margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                              padding: const EdgeInsets.all(8.0),
                               decoration: BoxDecoration(
                                 color: _selectedMood == _moods[index]
                                     ? Colors.blue[100]
-                                    : Colors.transparent,
-                                border: _selectedMood == _moods[index]
-                                    ? Border.all(color: Colors.blue, width: 2)
-                                    : null,
+                                    : Colors.white,
+                                border: Border.all(
+                                  color: _selectedMood == _moods[index]
+                                      ? Colors.blue
+                                      : Colors.grey,
+                                  width: 2,
+                                ),
                                 borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
                               ),
                               child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Image.asset(
                                     _moodImages[index],
-                                    height: 80,
-                                    width: 80,
+                                    height: 60,
+                                    width: 60,
                                   ),
                                   const SizedBox(height: 8),
-                                  Text(_moods[index]),
+                                  Text(
+                                    _moods[index],
+                                    style: const TextStyle(fontSize: 16),
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ],
                               ),
                             ),
                           );
-                        }),
+                        },
                       ),
                     ),
                   if (!_showMoodOptions && _selectedMood != null)
@@ -146,29 +172,57 @@ class _DashboardState extends State<Dashboard> {
                           onTap: _resetMoodSelection,
                           child: Column(
                             children: [
-                              Image.asset(
-                                _moodImages[_moods.indexOf(_selectedMood!)],
-                                height: 80,
-                                width: 80,
+                              Container(
+                                width: 100,
+                                margin: const EdgeInsets.symmetric(vertical: 16.0),
+                                padding: const EdgeInsets.all(8.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(color: Colors.blue, width: 2),
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      _moodImages[_moods.indexOf(_selectedMood!)],
+                                      height: 60,
+                                      width: 60,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      _selectedMood!,
+                                      style: const TextStyle(fontSize: 16),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 8),
-                              Text(_selectedMood!),
                             ],
                           ),
                         ),
                         const SizedBox(height: 16),
                         const Text(
-                          'Motivational Message of the Day:',
+                          'Motivational Message of the Day',
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
+
                         if (_motivationalQuote != null)
-                          Text(
-                            _motivationalQuote!,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontStyle: FontStyle.italic,
-                            ),
+                         AnimatedText(
+                           text: _motivationalQuote!,
+                           textStyle: const TextStyle(
+                            fontSize: 16,
+                            fontStyle: FontStyle.italic,
                           ),
+                       ),
                       ],
                     ),
                 ],
@@ -266,6 +320,54 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 }
+
+class AnimatedText extends StatefulWidget {
+  final String text;
+  final TextStyle textStyle; // Add this parameter
+
+  const AnimatedText({
+    super.key,
+    required this.text,
+    this.textStyle = const TextStyle(), // Default to an empty style if not provided
+  });
+
+  @override
+  _AnimatedTextState createState() => _AnimatedTextState();
+}
+
+class _AnimatedTextState extends State<AnimatedText> {
+  String _displayedText = "";
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _startAnimation();
+  }
+
+  void _startAnimation() {
+    Future.delayed(const Duration(milliseconds: 50), () {
+      if (_currentIndex < widget.text.length) {
+        setState(() {
+          _displayedText += widget.text[_currentIndex];
+          _currentIndex++;
+        });
+        _startAnimation();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      _displayedText,
+      style: widget.textStyle, // Use the passed textStyle
+    );
+  }
+}
+
+
+
 
 
 

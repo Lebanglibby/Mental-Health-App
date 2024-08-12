@@ -8,7 +8,6 @@ class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ChatPageState createState() => _ChatPageState();
 }
 
@@ -18,6 +17,7 @@ class _ChatPageState extends State<ChatPage> {
   late ChatSession _chat;
   final TextEditingController _textController = TextEditingController();
   final List<Map<String, String>> _messages = [];
+  final ScrollController _scrollController = ScrollController();
   bool _isWaitingForResponse = false;
 
   @override
@@ -35,7 +35,7 @@ class _ChatPageState extends State<ChatPage> {
     _chat = _model.startChat();
   }
 
-  void _aiInitiateConversation() async {
+  void _aiInitiateConversation() {
     setState(() {
       _messages.add({"sender": "AI", "text": "Hello! How can I assist you today?"});
     });
@@ -52,19 +52,35 @@ class _ChatPageState extends State<ChatPage> {
 
       final response = await _chat.sendMessage(Content.text(userMessage));
       final aiMessage = response.text ?? "I'm here to help!";
-      setState(() {
-        _messages.add({"sender": "AI Helper", "text": aiMessage});
-        _isWaitingForResponse = false;
+      _displayAiMessage(aiMessage);
+    }
+  }
 
-        if (_requiresProfessionalAttention(userMessage)) {
-          _promptForProfessionalHelp();
-        }
+  Future<void> _displayAiMessage(String message) async {
+    setState(() {
+      _isWaitingForResponse = false;
+      _messages.add({"sender": "AI", "text": ""});
+    });
+
+    final words = message.split(' ');
+    String displayedText = '';
+
+    for (final word in words) {
+      await Future.delayed(const Duration(milliseconds: 300)); // Typing delay
+      setState(() {
+        displayedText += ' $word';
+        _messages.last["text"] = displayedText.trim();
+        _scrollToBottom();
       });
+    }
+
+    if (_requiresProfessionalAttention(displayedText)) {
+      _promptForProfessionalHelp();
     }
   }
 
   bool _requiresProfessionalAttention(String message) {
-    const keywords = ['depression', 'anxiety', 'suicide', 'help','suicidal','harm','kill','murder','drug','disorder','loss of family'];
+    const keywords = ['depression', 'anxiety', 'suicide', 'help', 'suicidal', 'harm', 'kill', 'murder', 'drug', 'disorder', 'loss of family'];
     for (var keyword in keywords) {
       if (message.toLowerCase().contains(keyword)) {
         return true;
@@ -120,6 +136,18 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,8 +158,10 @@ class _ChatPageState extends State<ChatPage> {
       ),
       body: Column(
         children: [
+          SizedBox(height: 16), // Space between header and first message
           Expanded(
             child: ListView.builder(
+              controller: _scrollController, // Attach the ScrollController
               padding: const EdgeInsets.all(8.0),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
@@ -164,11 +194,6 @@ class _ChatPageState extends State<ChatPage> {
               },
             ),
           ),
-          if (_isWaitingForResponse)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(),
-            ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -226,69 +251,74 @@ class _ChatPageState extends State<ChatPage> {
           ],
         ),
       ),
-            endDrawer: Drawer(
-  child: ListView(
-    padding: EdgeInsets.zero,
-    children: <Widget>[
-      const DrawerHeader(
-        decoration: BoxDecoration(
-          color: Color(0xFF1b263b),
+      endDrawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xFF1b263b),
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.track_changes),
+              title: const Text('Appointments'),
+              onTap: () {
+                Navigator.pushNamed(context, '/Appointments');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.library_books),
+              title: const Text('Resource Library'),
+              onTap: () {
+                Navigator.pushNamed(context, '/resource_library');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.insights),
+              title: const Text('Insights'),
+              onTap: () {
+                Navigator.pushNamed(context, '/Insights');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.people),
+              title: const Text('Community'),
+              onTap: () {
+                Navigator.pushNamed(context, '/community');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.support),
+              title: const Text('Support Groups'),
+              onTap: () {
+                Navigator.pushNamed(context, '/support_groups');
+              },
+            ),
+          ],
         ),
-        child: Text(
-          'Menu',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-          ),
-        ),
       ),
-
-      ListTile(
-        leading: const Icon(Icons.track_changes),
-        title: const Text('Appointments'),
-        onTap: () {
-          Navigator.pushNamed(context, '/Appointments');
-        },
-      ),
-      
-      ListTile(
-        leading: const Icon(Icons.library_books),
-        title: const Text('Resource Library'),
-        onTap: () {
-          Navigator.pushNamed(context, '/resource_library');
-        },
-      ),
-      ListTile(
-        leading: const Icon(Icons.insights),
-        title: const Text('Insights'),
-        onTap: () {
-          Navigator.pushNamed(context, '/Insights');
-        },
-      ),
-      ListTile(
-        leading: const Icon(Icons.group),
-        title: const Text('Community and Support Groups'),
-        onTap: () {
-          Navigator.pushNamed(context, '/community_support_groups');
-        },
-      ),
-    ],
-  ),
-),
     );
   }
 
- Widget _buildAvatar({required bool isUser}) {
-  return Container(
-    margin: const EdgeInsets.symmetric(horizontal: 8.0),
-    child: CircleAvatar(
-      radius: 15,
-      backgroundImage: AssetImage(isUser ? 'assets/images/user_avatar.jpg' : 'assets/images/ai_avatar.jpeg'),
-    ),
-  );
+  Widget _buildAvatar({required bool isUser}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: CircleAvatar(
+        backgroundColor: isUser ? const Color.fromARGB(255, 124, 175, 36) : const Color.fromARGB(255, 8, 119, 204),
+        child: Icon(
+          isUser ? Icons.person : Icons.android,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
 }
-
-}
-
-
 

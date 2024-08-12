@@ -73,6 +73,8 @@ class MyApp extends StatelessWidget {
                     return const ProfessionalSignUpPage();
                   case Dashboard.routeName:
                     return const Dashboard();
+                  case ProfilePage.routeName:
+                    return const ProfilePage();
                   case ChatPage.routeName:  
                     return const ChatPage();
                   case ProfilePage.routeName:
