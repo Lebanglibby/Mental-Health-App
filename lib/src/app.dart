@@ -10,8 +10,6 @@ import 'pages/landing_page.dart';
 import 'pages/dashboard.dart';
 import 'pages/profile_page.dart';
 import 'pages/emergency_support_page.dart';
-import 'pages/sample_item_details_view.dart';
-import 'pages/sample_item_list_view.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
 import 'pages/forgot_password_page.dart';
@@ -59,10 +57,6 @@ class MyApp extends StatelessWidget {
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
-                  case SampleItemDetailsView.routeName:
-                    return const SampleItemDetailsView();
-                  case SampleItemListView.routeName:
-                    return const SampleItemListView();
                   case LoginPage.routeName:
                     return const LoginPage();
                   case SignUpPage.routeName:
@@ -77,17 +71,17 @@ class MyApp extends StatelessWidget {
                     return const ProfilePage();
                   case ChatPage.routeName:  
                     return const ChatPage();
-                  case ProfilePage.routeName:
-                   return ProfilePage();
                   case EmergencySupportPage.routeName:
                    return const EmergencySupportPage();
                   case ResourceLibraryPage.routeName:
                    return ResourceLibraryPage();
                   case AppointmentPage.routeName:
-                   return const AppointmentPage(); 
+                   return const AppointmentPage();
+                  case ProfilePage.routeName:
+                    return const ProfilePage(); 
                   
                   default:
-                   return const SampleItemListView();
+                   return const LandingPage();
                 }
               },
             );

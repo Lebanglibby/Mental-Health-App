@@ -18,6 +18,7 @@ class _DashboardState extends State<Dashboard> {
   late GenerativeModel _model;
   late ChatSession _chat;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final ScrollController _scrollController = ScrollController(); // ScrollController
 
   final List<String> _moods = [
     'Happy',
@@ -54,6 +55,9 @@ class _DashboardState extends State<Dashboard> {
     setState(() {
       _motivationalQuote = response.text ?? 'Keep going, you are doing great!';
     });
+
+    // Scroll to the bottom when a new quote is generated
+    _scrollToBottom();
   }
 
   Future<void> _saveMoodToFirestore() async {
@@ -80,6 +84,18 @@ class _DashboardState extends State<Dashboard> {
     });
   }
 
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,6 +105,7 @@ class _DashboardState extends State<Dashboard> {
         backgroundColor: const Color(0xFF1b263b),
       ),
       body: SingleChildScrollView(
+        controller: _scrollController, // Attach the ScrollController
         child: Column(
           children: [
             // Image covering almost half the screen
@@ -214,15 +231,14 @@ class _DashboardState extends State<Dashboard> {
                           'Motivational Message of the Day',
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
-
                         if (_motivationalQuote != null)
-                         AnimatedText(
-                           text: _motivationalQuote!,
-                           textStyle: const TextStyle(
-                            fontSize: 16,
-                            fontStyle: FontStyle.italic,
+                          AnimatedText(
+                            text: _motivationalQuote!,
+                            textStyle: const TextStyle(
+                              fontSize: 16,
+                              fontStyle: FontStyle.italic,
+                            ),
                           ),
-                       ),
                       ],
                     ),
                 ],
@@ -237,31 +253,31 @@ class _DashboardState extends State<Dashboard> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
-              icon: const Icon(Icons.home),
+              icon: const Icon(Icons.home, color: Colors.blueGrey),
               onPressed: () {
                 Navigator.pushNamed(context, '/dashboard');
               },
             ),
             IconButton(
-              icon: const Icon(Icons.chat),
+              icon: const Icon(Icons.chat,  color: Colors.blueGrey),
               onPressed: () {
                 Navigator.pushNamed(context, '/chat');
               },
             ),
             IconButton(
-              icon: const Icon(Icons.person),
+              icon: const Icon(Icons.person,  color: Colors.blueGrey),
               onPressed: () {
                 Navigator.pushNamed(context, '/profile');
               },
             ),
             IconButton(
-              icon: const Icon(Icons.local_hospital),
+              icon: const Icon(Icons.local_hospital,  color: Colors.blueGrey),
               onPressed: () {
                 Navigator.pushNamed(context, '/emergency_support');
               },
             ),
             IconButton(
-              icon: const Icon(Icons.menu),
+              icon: const Icon(Icons.menu, color: Colors.blueGrey),
               onPressed: () {
                 _scaffoldKey.currentState?.openEndDrawer();
               },
@@ -270,101 +286,114 @@ class _DashboardState extends State<Dashboard> {
         ),
       ),
       endDrawer: Drawer(
-  child: ListView(
-    padding: EdgeInsets.zero,
-    children: <Widget>[
-      const DrawerHeader(
-        decoration: BoxDecoration(
-          color: Color(0xFF1b263b),
-        ),
-        child: Text(
-          'Menu',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xFF1b263b),
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.track_changes),
+              title: const Text('Appointments'),
+              onTap: () {
+                Navigator.pushNamed(context, '/Appointments');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.library_books),
+              title: const Text('Resource Library'),
+              onTap: () {
+                Navigator.pushNamed(context, '/resource_library');
+              },
+            ),
+             ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.pushNamed(context, '/settings');
+              },
+            ),
+            ListTile(
+            leading: const Icon(Icons.exit_to_app),
+            title: const Text('Sign Out'),
+            onTap: () async {
+              Navigator.pushReplacementNamed(context, '/login'); // Replace with your login route
+            },
           ),
+          ],
         ),
       ),
-      ListTile(
-        leading: const Icon(Icons.track_changes),
-        title: const Text('Appointments'),
-        onTap: () {
-          Navigator.pushNamed(context, '/Appointments');
-        },
-      ),
-      ListTile(
-        leading: const Icon(Icons.library_books),
-        title: const Text('Resource Library'),
-        onTap: () {
-          Navigator.pushNamed(context, '/resource_library');
-        },
-      ),
-      ListTile(
-        leading: const Icon(Icons.insights),
-        title: const Text('Insights'),
-        onTap: () {
-          Navigator.pushNamed(context, '/Insights');
-        },
-      ),
-      ListTile(
-        leading: const Icon(Icons.group),
-        title: const Text('Community and Support Groups'),
-        onTap: () {
-          Navigator.pushNamed(context, '/community_support_groups');
-        },
-      ),
-    ],
-  ),
-),
-
     );
   }
 }
 
 class AnimatedText extends StatefulWidget {
   final String text;
-  final TextStyle textStyle; // Add this parameter
+  final TextStyle textStyle;
 
   const AnimatedText({
-    super.key,
     required this.text,
-    this.textStyle = const TextStyle(), // Default to an empty style if not provided
+    required this.textStyle,
   });
 
   @override
   _AnimatedTextState createState() => _AnimatedTextState();
 }
 
-class _AnimatedTextState extends State<AnimatedText> {
-  String _displayedText = "";
+class _AnimatedTextState extends State<AnimatedText>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  // ignore: unused_field, prefer_final_fields
   int _currentIndex = 0;
+  String _displayedText = '';
 
   @override
   void initState() {
     super.initState();
-    _startAnimation();
-  }
-
-  void _startAnimation() {
-    Future.delayed(const Duration(milliseconds: 50), () {
-      if (_currentIndex < widget.text.length) {
+    _controller = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn)
+      ..addListener(() {
         setState(() {
-          _displayedText += widget.text[_currentIndex];
-          _currentIndex++;
+          _displayedText = widget.text.substring(
+              0, (_animation.value * widget.text.length).ceil());
         });
-        _startAnimation();
-      }
-    });
+      })
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          _controller.stop();
+        }
+      });
+    _controller.forward();
   }
 
   @override
   Widget build(BuildContext context) {
     return Text(
       _displayedText,
-      style: widget.textStyle, // Use the passed textStyle
+      style: widget.textStyle,
     );
   }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 }
+
 
 
 

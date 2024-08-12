@@ -7,7 +7,6 @@ class AppointmentPage extends StatefulWidget {
   static const routeName = '/Appointments';
 
   @override
-  // ignore: library_private_types_in_public_api
   _AppointmentPageState createState() => _AppointmentPageState();
 }
 
@@ -33,10 +32,10 @@ class _AppointmentPageState extends State<AppointmentPage> {
     },
   ];
 
-  bool _isLoading = false;
   String _activitySuggestions = '';
   late GenerativeModel _model;
   late ChatSession _chat;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -54,17 +53,21 @@ class _AppointmentPageState extends State<AppointmentPage> {
 
   Future<void> _fetchSuggestions(String issue) async {
     setState(() {
-      _isLoading = true;
+      _activitySuggestions = '';
     });
 
-    final response = await _chat.sendMessage(
+    final responseStream = _chat.sendMessageStream(
       Content.text('Suggest activities for someone dealing with $issue.'),
     );
 
-    setState(() {
-      _activitySuggestions = response.text ?? 'Try mindfulness meditation.';
-      _isLoading = false;
-    });
+    await for (final response in responseStream) {
+      setState(() {
+        _activitySuggestions += response.text ?? '';
+      });
+
+      // Scroll to the bottom
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    }
   }
 
   void _showAddAppointmentDialog() {
@@ -77,7 +80,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
         String professional = '';
 
         return AlertDialog(
-          title: const Text('Add Appointment'),
+          title: const Text('Request for Appointment'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -131,116 +134,105 @@ class _AppointmentPageState extends State<AppointmentPage> {
         title: const Text('Appointments'),
         backgroundColor: const Color(0xFF1b263b),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Upcoming Appointments',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+      body: ListView(
+        controller: _scrollController,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Upcoming Appointments',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Table(
-                border: TableBorder.all(color: Colors.black),
-                columnWidths: const {
-                  0: FlexColumnWidth(2),
-                  1: FlexColumnWidth(2),
-                  2: FlexColumnWidth(3),
-                  3: FlexColumnWidth(3),
-                },
-                children: [
-                  TableRow(
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                    ),
-                    children: [
-                      TableCell(child: Container(padding: const EdgeInsets.all(8.0), child: Text('Date', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)))),
-                      TableCell(child: Container(padding: const EdgeInsets.all(8.0), child: Text('Time', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)))),
-                      TableCell(child: Container(padding: const EdgeInsets.all(8.0), child: Text('Issue', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)))),
-                      TableCell(child: Container(padding: const EdgeInsets.all(8.0), child: Text('Expert', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)))),
-                    ],
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Table(
+              border: TableBorder.all(color: Colors.black.withOpacity(0.5)),
+              columnWidths: const {
+                0: FlexColumnWidth(2),
+                1: FlexColumnWidth(2),
+                2: FlexColumnWidth(3),
+                3: FlexColumnWidth(3),
+              },
+              children: [
+                TableRow(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    border: Border(bottom: BorderSide(color: Colors.black.withOpacity(0.5))),
                   ),
-                  ..._appointments.map((appointment) {
-                    return TableRow(
-                      children: [
-                        TableCell(child: Container(padding: const EdgeInsets.all(8.0), child: Text(appointment['date']!))),
-                        TableCell(child: Container(padding: const EdgeInsets.all(8.0), child: Text(appointment['time']!))),
-                        TableCell(
-                          child: GestureDetector(
-                            onTap: () => _fetchSuggestions(appointment['issue']!),
-                            child: Container(
-                              padding: const EdgeInsets.all(8.0),
-                              color: Colors.blue.shade100,
-                              child: Text(
-                                appointment['issue']!,
-                                style: const TextStyle(
-                                  color: Colors.blue,
-                                  decoration: TextDecoration.underline,
-                                ),
+                  children: [
+                    TableCell(child: Container(padding: const EdgeInsets.all(8.0), child: Text('Date', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)))),
+                    TableCell(child: Container(padding: const EdgeInsets.all(8.0), child: Text('Time', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)))),
+                    TableCell(child: Container(padding: const EdgeInsets.all(8.0), child: Text('Issue', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)))),
+                    TableCell(child: Container(padding: const EdgeInsets.all(8.0), child: Text('Professional', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)))),
+                  ],
+                ),
+                ..._appointments.map((appointment) {
+                  return TableRow(
+                    children: [
+                      TableCell(child: Container(padding: const EdgeInsets.all(8.0), child: Text(appointment['date']!))),
+                      TableCell(child: Container(padding: const EdgeInsets.all(8.0), child: Text(appointment['time']!))),
+                      TableCell(
+                        child: GestureDetector(
+                          onTap: () => _fetchSuggestions(appointment['issue']!),
+                          child: Container(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              appointment['issue']!,
+                              style: const TextStyle(
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
                               ),
                             ),
                           ),
                         ),
-                        TableCell(child: Container(padding: const EdgeInsets.all(8.0), child: Text(appointment['professional']!))),
-                      ],
-                    );
-                  }).toList(),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            if (_isLoading)
-              const Column(
-                children: [
-                  Text(
-                    "AI-Generated Suggestions While You Wait:",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 10),
-                  CircularProgressIndicator(),
-                ],
-              )
-            else
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      "AI-Generated Suggestions While You Wait:",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    MarkdownBody(
-                      data: _activitySuggestions,
-                      styleSheet: MarkdownStyleSheet(
-                        p: const TextStyle(fontSize: 16),
-                        blockquotePadding: const EdgeInsets.all(10),
-                        blockquoteDecoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
                       ),
-                    ),
-                  ],
+                      TableCell(child: Container(padding: const EdgeInsets.all(8.0), child: Text(appointment['professional']!))),
+                    ],
+                  );
+                }).toList(),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  "AI-Generated Suggestions While You Wait:",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              ),
-          ],
-        ),
+                const SizedBox(height: 10),
+                MarkdownBody(
+                  data: _activitySuggestions,
+                  styleSheet: MarkdownStyleSheet(
+                    p: const TextStyle(fontSize: 16),
+                    blockquotePadding: const EdgeInsets.all(10),
+                    blockquoteDecoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddAppointmentDialog,
-        backgroundColor: const Color(0xFF1b263b),
+        backgroundColor: const Color.fromARGB(255, 166, 183, 213),
         child: const Icon(Icons.add),
       ),
     );
   }
 }
+
+
 
 
 

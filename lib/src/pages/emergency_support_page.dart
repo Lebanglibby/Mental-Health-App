@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 
 class EmergencySupportPage extends StatefulWidget {
@@ -6,7 +8,6 @@ class EmergencySupportPage extends StatefulWidget {
   const EmergencySupportPage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _EmergencySupportPageState createState() => _EmergencySupportPageState();
 }
 
@@ -14,25 +15,24 @@ class _EmergencySupportPageState extends State<EmergencySupportPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String _selectedCountry = 'Botswana'; // Default country
 
-final Map<String, List<Map<String, String>>> _emergencyContacts = {
-  'USA': [
-    {'title': '911', 'description': 'Emergency'},
-    {'title': '988', 'description': 'Suicide & Crisis Lifeline'},
-  ],
-  'UK': [
-    {'title': '999', 'description': 'Emergency'},
-    {'title': '0800 689 5652', 'description': 'Samaritans'},
-  ],
-  'Botswana': [
-    {'title': '911', 'description': 'Emergency Services'},
-    {'title': '0861 322 322', 'description': 'National Counselling Line'},
-    {'title': '290', 'description': 'Botswana Suicide Hotline'},
-    {'title': '116', 'description': 'Childline'},
-    {'title': '+267 7552 7590', 'description': 'Lifeline/FTMTB'},
-  
-  ],
-  // Add more countries and their contacts here
-};
+  final Map<String, List<Map<String, String>>> _emergencyContacts = {
+    'USA': [
+      {'title': '911', 'description': 'Emergency'},
+      {'title': '988', 'description': 'Suicide & Crisis Lifeline'},
+    ],
+    'UK': [
+      {'title': '999', 'description': 'Emergency'},
+      {'title': '0800 689 5652', 'description': 'Samaritans'},
+    ],
+    'Botswana': [
+      {'title': '911', 'description': 'Emergency Services'},
+      {'title': '0861 322 322', 'description': 'National Counselling Line'},
+      {'title': '290', 'description': 'Botswana Suicide Hotline'},
+      {'title': '116', 'description': 'Childline'},
+      {'title': '+267 7552 7590', 'description': 'Lifeline/FTMTB'},
+    ],
+    // Add more countries and their contacts here
+  };
 
   void _onCountryChanged(String? newCountry) {
     if (newCountry != null) {
@@ -49,26 +49,6 @@ final Map<String, List<Map<String, String>>> _emergencyContacts = {
         return AlertDialog(
           title: Text('Calling $contact'),
           content: Text('This is a placeholder for calling $contact.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _panicButtonPressed() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Panic Button Activated'),
-          content: const Text('Immediate contact has been made to emergency services.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -137,16 +117,6 @@ final Map<String, List<Map<String, String>>> _emergencyContacts = {
                 }).toList(),
               ),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _panicButtonPressed,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              child: const Text('Panic Button'),
-            ),
           ],
         ),
       ),
@@ -189,61 +159,56 @@ final Map<String, List<Map<String, String>>> _emergencyContacts = {
         ),
       ),
       endDrawer: Drawer(
-  child: ListView(
-    padding: EdgeInsets.zero,
-    children: <Widget>[
-      const DrawerHeader(
-        decoration: BoxDecoration(
-          color: Color(0xFF1b263b),
-        ),
-        child: Text(
-          'Menu',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xFF1b263b),
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.track_changes),
+              title: const Text('Appointments'),
+              onTap: () {
+                Navigator.pushNamed(context, '/appointments');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.library_books),
+              title: const Text('Resource Library'),
+              onTap: () {
+                Navigator.pushNamed(context, '/resource_library');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.pushNamed(context, '/settings');
+              },
+            ),
+            ListTile(
+            leading: const Icon(Icons.exit_to_app),
+            title: const Text('Sign Out'),
+            onTap: () async {
+              Navigator.pushReplacementNamed(context, '/login'); // Replace with your login route
+            },
           ),
+          ],
         ),
       ),
-
-        ListTile(
-        leading: const Icon(Icons.track_changes),
-        title: const Text('Appointments'),
-        onTap: () {
-          Navigator.pushNamed(context, '/Appointments');
-        },
-      ),
-
-      ListTile(
-        leading: const Icon(Icons.library_books),
-        title: const Text('Resource Library'),
-        onTap: () {
-          Navigator.pushNamed(context, '/resource_library');
-        },
-      ),
-
-      ListTile(
-        leading: const Icon(Icons.insights),
-        title: const Text('Insights'),
-        onTap: () {
-          Navigator.pushNamed(context, '/Insights');
-        },
-      ),
-      
-      ListTile(
-        leading: const Icon(Icons.group),
-        title: const Text('Community and Support Groups'),
-        onTap: () {
-          Navigator.pushNamed(context, '/community_support_groups');
-        },
-      ),
-    ],
-  ),
-),
-
-
     );
   }
 }
+
 
 
 

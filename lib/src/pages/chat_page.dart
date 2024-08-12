@@ -1,3 +1,4 @@
+// ignore_for_file: unused_field, dead_code
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
@@ -221,29 +222,29 @@ class _ChatPageState extends State<ChatPage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
-              icon: const Icon(Icons.home),
+              icon: const Icon(Icons.home, color: Colors.blueGrey),
               onPressed: () {
                 Navigator.pushNamed(context, '/dashboard');
               },
             ),
             IconButton(
-              icon: const Icon(Icons.chat),
+              icon: const Icon(Icons.chat, color: Colors.blueGrey),
               onPressed: () {},
             ),
             IconButton(
-              icon: const Icon(Icons.person),
+              icon: const Icon(Icons.person, color: Colors.blueGrey),
               onPressed: () {
                 Navigator.pushNamed(context, '/profile');
               },
             ),
             IconButton(
-              icon: const Icon(Icons.local_hospital),
+              icon: const Icon(Icons.local_hospital, color: Colors.blueGrey),
               onPressed: () {
                 Navigator.pushNamed(context, '/emergency_support');
               },
             ),
             IconButton(
-              icon: const Icon(Icons.menu),
+              icon: const Icon(Icons.menu, color: Colors.blueGrey),
               onPressed: () {
                 _scaffoldKey.currentState?.openEndDrawer();
               },
@@ -281,27 +282,20 @@ class _ChatPageState extends State<ChatPage> {
                 Navigator.pushNamed(context, '/resource_library');
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.insights),
-              title: const Text('Insights'),
+           ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
               onTap: () {
-                Navigator.pushNamed(context, '/Insights');
+                Navigator.pushNamed(context, '/settings');
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.people),
-              title: const Text('Community'),
-              onTap: () {
-                Navigator.pushNamed(context, '/community');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.support),
-              title: const Text('Support Groups'),
-              onTap: () {
-                Navigator.pushNamed(context, '/support_groups');
-              },
-            ),
+           ListTile(
+            leading: const Icon(Icons.exit_to_app),
+            title: const Text('Sign Out'),
+            onTap: () async {
+              Navigator.pushReplacementNamed(context, '/login'); // Replace with your login route
+            },
+          ),
           ],
         ),
       ),

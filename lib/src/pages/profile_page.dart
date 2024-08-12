@@ -1,11 +1,10 @@
-// ignore_for_file: avoid_print, use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
+
 
 class ProfilePage extends StatefulWidget {
   static const routeName = '/profile';
@@ -22,6 +21,8 @@ class _ProfilePageState extends State<ProfilePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   String? _email;
   String? _phone;
@@ -59,7 +60,6 @@ class _ProfilePageState extends State<ProfilePage> {
         DocumentSnapshot snapshot = await _firestore.collection('users').doc(user.uid).get();
 
         if (snapshot.exists) {
-          print('Document data: ${snapshot.data()}'); // Debugging line
           setState(() {
             _phone = snapshot.get('phone') ?? '';
             _age = snapshot.get('age') ?? '';
@@ -74,19 +74,17 @@ class _ProfilePageState extends State<ProfilePage> {
             _profileImage = await _downloadImage(photoUrl);
           }
         } else {
-          print('Document does not exist for user UID: ${user.uid}');
-          ScaffoldMessenger.of(context).showSnackBar(
+          _scaffoldKey.currentState?.showSnackBar(
             const SnackBar(content: Text('User data not found!')),
           );
         }
       } catch (e) {
-        print('Error loading user data: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
+        _scaffoldKey.currentState?.showSnackBar(
           const SnackBar(content: Text('Error loading user data!')),
         );
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
+      _scaffoldKey.currentState?.showSnackBar(
         const SnackBar(content: Text('No user is currently logged in!')),
       );
     }
@@ -147,7 +145,7 @@ class _ProfilePageState extends State<ProfilePage> {
             'maritalStatus': _selectedMaritalStatus,
           });
 
-          ScaffoldMessenger.of(context).showSnackBar(
+          _scaffoldKey.currentState?.showSnackBar(
             const SnackBar(content: Text('Profile updated successfully!')),
           );
 
@@ -156,7 +154,7 @@ class _ProfilePageState extends State<ProfilePage> {
           });
         } catch (e) {
           print('Error updating profile: $e');
-          ScaffoldMessenger.of(context).showSnackBar(
+          _scaffoldKey.currentState?.showSnackBar(
             const SnackBar(content: Text('Error updating profile!')),
           );
         }
@@ -167,16 +165,108 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(_isEditing ? 'Edit Profile' : 'Profile'),
         backgroundColor: const Color(0xFF1b263b),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: _isEditing
-              ? _buildEditForm()
-              : _buildProfileView(),
+      body: Column(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                child: _isEditing
+                    ? _buildEditForm()
+                    : _buildProfileView(),
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.white,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.home, color: Colors.blueGrey),
+              onPressed: () {
+                Navigator.pushNamed(context, '/dashboard');
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.chat, color: Colors.blueGrey),
+              onPressed: () {
+                Navigator.pushNamed(context, '/chat');
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.person, color: Colors.blueGrey),
+              onPressed: () {
+                Navigator.pushNamed(context, '/profile');
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.local_hospital, color: Colors.blueGrey),
+              onPressed: () {
+                Navigator.pushNamed(context, '/emergency_support');
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.menu, color: Colors.blueGrey),
+              onPressed: () {
+                _scaffoldKey.currentState?.openEndDrawer();
+              },
+            ),
+          ],
+        ),
+      ),
+      endDrawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xFF1b263b),
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.track_changes),
+              title: const Text('Appointments'),
+              onTap: () {
+                Navigator.pushNamed(context, '/appointments');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.library_books),
+              title: const Text('Resource Library'),
+              onTap: () {
+                Navigator.pushNamed(context, '/resource_library');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.pushNamed(context, '/settings');
+              },
+            ),
+             ListTile(
+            leading: const Icon(Icons.exit_to_app),
+            title: const Text('Sign Out'),
+            onTap: () async {
+              Navigator.pushReplacementNamed(context, '/login'); 
+            },
+          ),
+          ],
         ),
       ),
     );
@@ -196,6 +286,16 @@ class _ProfilePageState extends State<ProfilePage> {
                     ? FileImage(_profileImage!)
                     : const AssetImage('assets/default_profile.png') as ImageProvider,
               ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: IconButton(
+                  icon: const Icon(Icons.camera_alt, color: Colors.white),
+                  onPressed: _pickImage,
+                  tooltip: 'Change profile picture',
+                  color: const Color(0xFF5c677d),
+                ),
+              ),
               if (_profileImage != null)
                 Positioned(
                   bottom: 0,
@@ -208,31 +308,42 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
         ),
+        const SizedBox(height: 16),
+        _buildProfileInfo('Email', _email),
+        _buildProfileInfo('Phone', _phone),
+        _buildProfileInfo('Age', _age),
+        _buildProfileInfo('Gender', _selectedGender),
+        _buildProfileInfo('Country', _selectedCountry),
+        _buildProfileInfo('Marital Status', _selectedMaritalStatus),
         const SizedBox(height: 32),
-        Text('Email: $_email', style: const TextStyle(fontSize: 18)),
-        const SizedBox(height: 16),
-        Text('Phone: $_phone', style: const TextStyle(fontSize: 18)),
-        const SizedBox(height: 16),
-        Text('Age: $_age', style: const TextStyle(fontSize: 18)),
-        const SizedBox(height: 16),
-        Text('Gender: $_selectedGender', style: const TextStyle(fontSize: 18)),
-        const SizedBox(height: 16),
-        Text('Country: $_selectedCountry', style: const TextStyle(fontSize: 18)),
-        const SizedBox(height: 16),
-        Text('Marital Status: $_selectedMaritalStatus', style: const TextStyle(fontSize: 18)),
-        const SizedBox(height: 32),
-        ElevatedButton(
-          onPressed: () {
-            setState(() {
-              _isEditing = true;
-            });
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF5c677d),
+        Center(
+          child: ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _isEditing = !_isEditing;
+              });
+            },
+            child: Text(_isEditing ? 'Cancel' : 'Edit Profile'),
           ),
-          child: const Text('Edit Profile'),
         ),
       ],
+    );
+  }
+
+  Widget _buildProfileInfo(String label, String? value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Expanded(child: Text('$label:')),
+          Expanded(
+            child: Text(
+              value ?? 'Not provided',
+              textAlign: TextAlign.right,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -242,52 +353,55 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: GestureDetector(
-              onTap: _pickImage,
-              child: CircleAvatar(
-                radius: 60,
-                backgroundColor: const Color(0xFF5c677d),
-                backgroundImage: _profileImage != null
-                    ? FileImage(_profileImage!)
-                    : const AssetImage('assets/default_profile.png') as ImageProvider,
-              ),
-            ),
-          ),
+          _buildProfileImagePicker(),
           const SizedBox(height: 16),
           _buildTextField('Phone', _phone, (value) => _phone = value),
-          const SizedBox(height: 16),
           _buildTextField('Age', _age, (value) => _age = value),
-          const SizedBox(height: 16),
-          _buildDropdown('Gender', _genders, _selectedGender, (value) => _selectedGender = value),
-          const SizedBox(height: 16),
-          _buildDropdown('Country', _countries, _selectedCountry, (value) => _selectedCountry = value),
-          const SizedBox(height: 16),
-          _buildDropdown('Marital Status', _maritalStatuses, _selectedMaritalStatus, (value) => _selectedMaritalStatus = value),
+          _buildDropdown('Gender', _selectedGender, _genders, (value) => _selectedGender = value),
+          _buildDropdown('Country', _selectedCountry, _countries, (value) => _selectedCountry = value),
+          _buildDropdown('Marital Status', _selectedMaritalStatus, _maritalStatuses, (value) => _selectedMaritalStatus = value),
           const SizedBox(height: 32),
           Center(
             child: ElevatedButton(
               onPressed: _saveProfile,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5c677d),
-              ),
               child: const Text('Save'),
             ),
           ),
-          const SizedBox(height: 16),
-          Center(
-            child: ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _isEditing = false;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey,
-              ),
-              child: const Text('Cancel'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileImagePicker() {
+    return Center(
+      child: Stack(
+        children: [
+          CircleAvatar(
+            radius: 60,
+            backgroundColor: const Color(0xFF5c677d),
+            backgroundImage: _profileImage != null
+                ? FileImage(_profileImage!)
+                : const AssetImage('assets/default_profile.png') as ImageProvider,
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: IconButton(
+              icon: const Icon(Icons.camera_alt, color: Colors.white),
+              onPressed: _pickImage,
+              tooltip: 'Change profile picture',
+              color: const Color(0xFF5c677d),
             ),
           ),
+          if (_profileImage != null)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              child: IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: _removeImage,
+              ),
+            ),
         ],
       ),
     );
@@ -297,38 +411,38 @@ class _ProfilePageState extends State<ProfilePage> {
     return TextFormField(
       initialValue: initialValue,
       decoration: InputDecoration(labelText: label),
+      keyboardType: TextInputType.text,
       onSaved: onSaved,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter your $label';
-        }
-        return null;
-      },
     );
   }
 
-  Widget _buildDropdown(String label, List<String> options, String? selectedValue, ValueChanged<String?> onChanged) {
+  Widget _buildDropdown(String label, String? selectedValue, List<String> options, FormFieldSetter<String> onSaved) {
     return DropdownButtonFormField<String>(
+      decoration: InputDecoration(labelText: label),
       value: selectedValue,
-      items: options.map((option) {
-        return DropdownMenuItem(
-          value: option,
-          child: Text(option),
+      items: options.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
         );
       }).toList(),
-      decoration: InputDecoration(labelText: label),
-      onChanged: (value) {
+      onChanged: (newValue) {
         setState(() {
-          onChanged(value);
+          selectedValue = newValue;
         });
       },
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please select your $label';
-        }
-        return null;
-      },
+      onSaved: onSaved,
     );
   }
 }
+
+extension on ScaffoldState? {
+  void showSnackBar(SnackBar snackBar) {}
+}
+
+
+
+
+
+
 
