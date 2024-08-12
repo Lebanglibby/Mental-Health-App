@@ -1,6 +1,6 @@
-// lib/src/pages/signup_page.dart
 import 'package:flutter/material.dart';
-import 'professional_signup_page.dart';
+import 'package:mentalhealthcare/src/services/auth_service.dart';  // Import your AuthService
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignUpPage extends StatefulWidget {
   static const routeName = '/signup';
@@ -14,6 +14,13 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
+  final AuthService _authService = AuthService();
+
+  String _username = '';
+  String _email = '';
+  String _password = '';
+  String _phone = '';
+  String _age = '';
   String _selectedGender = 'Male';
   String _selectedCountry = 'United States';
   String _selectedMaritalStatus = 'Single';
@@ -24,10 +31,7 @@ class _SignUpPageState extends State<SignUpPage> {
     'Canada',
     'United Kingdom',
     'Australia',
-    'India',
-    'Botswana',
-    'South Africa',
-    'Namibia'
+    'Zimbabwe'
   ];
   final List<String> _maritalStatuses = ['Single', 'Married', 'Divorced', 'Widowed'];
 
@@ -55,6 +59,33 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) => _username = value,
+                ),
+
+                const SizedBox(height: 16),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    labelStyle: TextStyle(color: Color(0xFF5c677d)),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFF5c677d)),
+                    ),
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) => _email = value,
+                ),
+
+                const SizedBox(height: 16),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Phone',
+                    labelStyle: TextStyle(color: Color(0xFF5c677d)),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFF5c677d)),
+                    ),
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) => _phone = value,
                 ),
 
                 const SizedBox(height: 16),
@@ -67,6 +98,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) => _age = value,
                 ),
 
                 const SizedBox(height: 16),
@@ -92,7 +124,6 @@ class _SignUpPageState extends State<SignUpPage> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: _selectedCountry,
@@ -116,19 +147,6 @@ class _SignUpPageState extends State<SignUpPage> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-
-                const SizedBox(height: 16),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'City',
-                    labelStyle: TextStyle(color: Color(0xFF5c677d)),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFF5c677d)),
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: _selectedMaritalStatus,
@@ -152,7 +170,6 @@ class _SignUpPageState extends State<SignUpPage> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-
                 const SizedBox(height: 16),
                 TextFormField(
                   decoration: const InputDecoration(
@@ -163,36 +180,41 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     border: OutlineInputBorder(),
                   ),
+                  obscureText: true,
+                  onChanged: (value) => _password = value,
                 ),
-
-                const SizedBox(height: 16),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Confirm Password',
-                    labelStyle: TextStyle(color: Color(0xFF5c677d)),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFF5c677d)),
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-
                 const SizedBox(height: 32),
                 ElevatedButton(
-                  onPressed: () {
-                    // Handle sign-up logic here
+                  onPressed: () async {
+                    if (_formKey.currentState?.validate() ?? false) {
+                      Map<String, dynamic> additionalData = {
+                        'username': _username,
+                        'phone':_phone,
+                        'age': _age,
+                        'gender': _selectedGender,
+                        'country': _selectedCountry,
+                        'maritalStatus': _selectedMaritalStatus,
+                      };
+                      User? users = await _authService.signUpWithEmailAndPassword(
+                        _email,
+                        _password,
+                        additionalData,
+                      );
+                      if (users != null) {
+                        // Navigate to the next page or show success message
+                        Navigator.pushNamed(context, '/dashboard');
+                      } else {
+                        // Handle sign up failure
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Sign up failed.')),
+                        );
+                      }
+                    }
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF370617)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF5c677d),
+                  ),
                   child: const Text('Sign Up'),
-                ),
-
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, ProfessionalSignUpPage.routeName);
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF5c677d)),
-                  child: const Text('For Mental Health Professionals'),
                 ),
               ],
             ),
@@ -202,4 +224,6 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 }
+
+
 

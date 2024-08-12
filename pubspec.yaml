@@ -19,6 +19,10 @@ dependencies:
   flutter_markdown: ^0.7.3+1
   url_launcher: ^6.2.0
   provider: ^6.1.2
+  fl_chart: ^0.40.0
+  firebase_auth: ^5.1.4
+  cloud_firestore: ^5.2.1
+  
 
 dev_dependencies:
   flutter_test:

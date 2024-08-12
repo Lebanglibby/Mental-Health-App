@@ -5,6 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mentalhealthcare/src/pages/resource_library.dart';
 
 import 'pages/appointment.dart';
+
 import 'pages/landing_page.dart';
 import 'pages/dashboard.dart';
 import 'pages/profile_page.dart';
@@ -82,6 +83,7 @@ class MyApp extends StatelessWidget {
                    return ResourceLibraryPage();
                   case AppointmentPage.routeName:
                    return const AppointmentPage(); 
+                  
                   default:
                    return const SampleItemListView();
                 }

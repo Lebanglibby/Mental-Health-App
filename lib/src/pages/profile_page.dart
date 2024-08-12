@@ -92,7 +92,7 @@ class ProfilePage extends StatelessWidget {
         leading: const Icon(Icons.insights),
         title: const Text('Insights'),
         onTap: () {
-          Navigator.pushNamed(context, '/insights');
+          Navigator.pushNamed(context, '/Insights');
         },
       ),
       

@@ -225,7 +225,7 @@ final Map<String, List<Map<String, String>>> _emergencyContacts = {
         leading: const Icon(Icons.insights),
         title: const Text('Insights'),
         onTap: () {
-          Navigator.pushNamed(context, '/insights');
+          Navigator.pushNamed(context, '/Insights');
         },
       ),
       
