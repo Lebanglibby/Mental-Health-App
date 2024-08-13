@@ -168,7 +168,7 @@ class _ProfilePageState extends State<ProfilePage> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(_isEditing ? 'Edit Profile' : 'Profile'),
-        backgroundColor: const Color(0xFF1b263b),
+        backgroundColor:const Color.fromARGB(255, 2, 61, 171),
       ),
       body: Column(
         children: [
@@ -242,7 +242,7 @@ class _ProfilePageState extends State<ProfilePage> {
               leading: const Icon(Icons.track_changes),
               title: const Text('Appointments'),
               onTap: () {
-                Navigator.pushNamed(context, '/appointments');
+                 Navigator.pushNamed(context, '/Appointments');
               },
             ),
             ListTile(

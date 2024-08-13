@@ -7,6 +7,7 @@ class Dashboard extends StatefulWidget {
   static const routeName = '/dashboard';
 
   @override
+  // ignore: library_private_types_in_public_api
   _DashboardState createState() => _DashboardState();
 }
 
@@ -28,8 +29,8 @@ class _DashboardState extends State<Dashboard> {
   ];
 
   final List<String> _moodImages = [
-    'assets/images/happymood.jpeg',
-    'assets/images/sadmood.jpeg',
+    'assets/images/happy.jpeg',
+    'assets/images/sad.jpeg',
     'assets/images/angry.png',
     'assets/images/anxious.jpeg',
   ];
@@ -102,7 +103,7 @@ class _DashboardState extends State<Dashboard> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text('My Health'),
-        backgroundColor: const Color(0xFF1b263b),
+        backgroundColor: const Color.fromARGB(255, 2, 61, 171),
       ),
       body: SingleChildScrollView(
         controller: _scrollController, // Attach the ScrollController
@@ -340,12 +341,13 @@ class AnimatedText extends StatefulWidget {
   final String text;
   final TextStyle textStyle;
 
-  const AnimatedText({
+  const AnimatedText({super.key, 
     required this.text,
     required this.textStyle,
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _AnimatedTextState createState() => _AnimatedTextState();
 }
 

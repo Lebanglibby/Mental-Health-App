@@ -31,7 +31,7 @@ class _EmergencySupportPageState extends State<EmergencySupportPage> {
       {'title': '116', 'description': 'Childline'},
       {'title': '+267 7552 7590', 'description': 'Lifeline/FTMTB'},
     ],
-    // Add more countries and their contacts here
+    
   };
 
   void _onCountryChanged(String? newCountry) {
@@ -68,7 +68,7 @@ class _EmergencySupportPageState extends State<EmergencySupportPage> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text('Emergency Support'),
-        backgroundColor: const Color(0xFF1b263b),
+        backgroundColor: const Color.fromARGB(255, 2, 61, 171),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -178,7 +178,7 @@ class _EmergencySupportPageState extends State<EmergencySupportPage> {
               leading: const Icon(Icons.track_changes),
               title: const Text('Appointments'),
               onTap: () {
-                Navigator.pushNamed(context, '/appointments');
+                Navigator.pushNamed(context, '/Appointments');
               },
             ),
             ListTile(

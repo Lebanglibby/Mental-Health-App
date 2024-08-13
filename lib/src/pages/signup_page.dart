@@ -29,6 +29,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final List<String> _countries = [
     'United States',
     'Canada',
+    'Botswana',
     'United Kingdom',
     'Australia',
     'Zimbabwe'
@@ -40,7 +41,7 @@ class _SignUpPageState extends State<SignUpPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sign Up'),
-        backgroundColor: const Color(0xFF1b263b),
+        backgroundColor: const Color.fromARGB(255, 2, 61, 171),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

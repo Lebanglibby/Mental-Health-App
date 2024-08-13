@@ -155,11 +155,11 @@ class _ChatPageState extends State<ChatPage> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text('Chat'),
-        backgroundColor: const Color(0xFF1b263b),
+        backgroundColor: const Color.fromARGB(255, 2, 61, 171),
       ),
       body: Column(
         children: [
-          SizedBox(height: 16), // Space between header and first message
+          const SizedBox(height: 16), // Space between header and first message
           Expanded(
             child: ListView.builder(
               controller: _scrollController, // Attach the ScrollController
