@@ -18,7 +18,7 @@ This integration ensures that the app not only serves as a tool for mental healt
 companion that adapts to the user's needs, making the support they receive both timely and relevant.
 
 ## Technlogies Used
-Flutter
+Flutter,
 Firebase
 
 ## Getting Started
