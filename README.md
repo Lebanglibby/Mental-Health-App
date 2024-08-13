@@ -19,7 +19,7 @@ companion that adapts to the user's needs, making the support they receive both 
 
 ## Technlogies Used
 Flutter,
-Firebase
+Firebase, Visual studio
 
 ## Getting Started
 
